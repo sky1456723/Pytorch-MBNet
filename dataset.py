@@ -124,10 +124,83 @@ class VCC18Dataset(Dataset):
         scores = torch.FloatTensor(scores)
         judge_ids = torch.LongTensor(judge_ids)
         return output_wavs, judge_ids, means, scores
-        
+
+class FeatureDataset(Dataset):
+    def __init__(self, wav_file, score_csv, idtable = '', valid = False):
+        self.wavs = wav_file
+        self.scores = score_csv
+        if os.path.isfile(idtable):
+            self.idtable = torch.load(idtable)
+            for i, judge_i in enumerate(score_csv['JUDGE']):
+                self.scores['JUDGE'][i] = self.idtable[judge_i]
+
+        elif not valid:
+            self.gen_idtable(idtable)
+            
+    def __getitem__(self, idx):
+        if type(self.wavs[idx]) == int:
+            wav = self.wavs[idx - self.wavs[idx]]
+        else:
+            wav = self.wavs[idx]
+        return wav, self.scores['MEAN'][idx], self.scores['MOS'][idx], self.scores['JUDGE'][idx]
+    
+    def __len__(self):
+        return len(self.wavs)
+
+    def gen_idtable(self, idtable_path):
+        if idtable_path == '':
+            idtable_path = './idtable.pkl'
+        self.idtable = {}
+        count = 0
+        for i, judge_i in enumerate(self.scores['JUDGE']):
+            if judge_i not in self.idtable.keys():
+                self.idtable[judge_i] = count
+                count += 1
+                self.scores['JUDGE'][i] = self.idtable[judge_i]
+            else:
+                self.scores['JUDGE'][i] = self.idtable[judge_i]
+        torch.save(self.idtable, idtable_path)
+
+
+    def collate_fn(self, samples):
+        # wavs may be list of wave or spectrogram, which has shape (time, feature) or (time,)
+        wavs, means, scores, judge_ids = zip(*samples)
+        max_len = max(wavs, key = lambda x: x.shape[0]).shape[0]
+        output_wavs = []
+        for i, wav in enumerate(wavs):
+            wav_len = wav.shape[0]
+            dup_times = max_len//wav_len
+            remain = max_len - wav_len*dup_times
+            to_dup = [wav for t in range(dup_times)]
+            to_dup.append(wav[:remain, :])
+            output_wavs.append(torch.cat(to_dup, dim = 0))
+        output_wavs = torch.stack(output_wavs, dim = 0)
+        means = torch.FloatTensor(means)
+        scores = torch.FloatTensor(scores)
+        judge_ids = torch.LongTensor(judge_ids)
+        return output_wavs, judge_ids, means, scores       
 #def preprocess(base_path, split):
 #    dataframe = pd.read_csv(os.path.join(base_path, f'{split}.csv'), index_col=False)
 #    return dataframe
+
+def get_feature_dataset(data_path, split, load_all = False, vcc18 = False, idtable = '', valid = False):
+    if vcc18:
+        dataframe = pd.read_csv(os.path.join(data_path, f'{split}'), index_col=False)
+        wavs = []
+        filename = ''
+        last = 0
+        print("Loading all features of wav files.")
+        for i in tqdm(range(len(dataframe))):
+            if dataframe['WAV_PATH'][i] != filename:
+                filename = dataframe['WAV_PATH'][i].replace('.wav', '.pkl')
+                wav = torch.load(os.path.join(data_path, filename))
+                wavs.append(wav)
+                last = 0
+            else:
+                last += 1
+                wavs.append(last)
+        return FeatureDataset(wav_file=wavs, score_csv = dataframe, idtable = idtable, valid = valid)
+    return VCC16Dataset(data_path)
 
 
 def get_dataset(data_path, split, load_all = False, vcc18 = False, idtable = '', valid = False):
