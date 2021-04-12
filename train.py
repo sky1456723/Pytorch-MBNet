@@ -10,11 +10,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-#from transformers import Wav2Vec2Tokenizer
 
 from dataset import get_dataloader, get_dataset
 from model import MBNet
-from utils import get_linear_schedule_with_warmup
 
 writer = SummaryWriter()
 warnings.filterwarnings("ignore")
@@ -86,8 +84,6 @@ def main(
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
     optimizer.zero_grad()
-    #scheduler = get_linear_schedule_with_warmup(optimizer, warmup_steps, total_steps)
-    #criterion = nn.MSELoss()
     criterion = clipped_mse
 
     pbar = tqdm(total=total_steps, ncols=0, desc="Overall", unit=" step")
@@ -197,10 +193,8 @@ def main(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_path", type=str)
-    # parser.add_argument("txt_file", type=str)
     parser.add_argument("--save_dir", type=str)
     parser.add_argument("--total_steps", type=int, default=50000)
-    parser.add_argument("--warmup_steps", type=int, default=5000)
     parser.add_argument("--valid_steps", type=int, default=1000)
     parser.add_argument("--log_steps", type=int, default=500)
     parser.add_argument("--update_freq", type=int, default=1)

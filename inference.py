@@ -10,11 +10,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-#from transformers import Wav2Vec2Tokenizer
 
 from dataset import VCC16Dataset
 from model import MBNet
-from utils import get_linear_schedule_with_warmup
 
 def clipped_mse(y_hat, label, tau = 0.5):
     mse = F.mse_loss(y_hat, label, reduction = 'none')
@@ -84,7 +82,7 @@ def main(
     save_dir
 ):
 
-    dataset = VCC16Dataset(data_path)
+    dataset = VCC16Dataset(data_path, down = False)
     # training_set, valid_set, test_set = random_split(dataset, [13580, 3000, 4000])
     dataloader = torch.utils.data.DataLoader(dataset, collate_fn = dataset.collate_fn, batch_size=20, num_workers=1, shuffle = False)
 
