@@ -82,7 +82,7 @@ def main(
     save_dir
 ):
 
-    dataset = VCC16Dataset(data_path, down = False)
+    dataset = VCC16Dataset(data_path)
     # training_set, valid_set, test_set = random_split(dataset, [13580, 3000, 4000])
     dataloader = torch.utils.data.DataLoader(dataset, collate_fn = dataset.collate_fn, batch_size=20, num_workers=1, shuffle = False)
 
