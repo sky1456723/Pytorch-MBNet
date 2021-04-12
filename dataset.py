@@ -210,7 +210,7 @@ def get_dataset(data_path, split, load_all = False, vcc18 = False, idtable = '',
         filename = ''
         last = 0
         print("Loading all wav files.")
-        for i in tqdm(range(len(dataframe))):
+        for i in tqdm(range(len(dataframe)//100)):
             if dataframe['WAV_PATH'][i] != filename:
                 wav, _ = librosa.load(os.path.join(data_path, dataframe['WAV_PATH'][i]), sr = 16000)
                 wav = np.abs(librosa.stft(wav, n_fft = 512)).T
