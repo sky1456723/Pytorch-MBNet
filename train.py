@@ -65,7 +65,6 @@ def main(
     data_path,
     save_dir,
     total_steps,
-    warmup_steps,
     valid_steps,
     log_steps,
     update_freq,
