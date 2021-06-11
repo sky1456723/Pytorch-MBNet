@@ -56,16 +56,10 @@ def valid(model, dataloader, steps, prefix, bias_weight):
     writer.add_scalar(f"{prefix}/LCC", LCC[0][1], global_step=steps)
     SRCC = scipy.stats.spearmanr(all_true_mean_scores.T, all_mean_scores.T)
     writer.add_scalar(f"{prefix}/SRCC", SRCC[0], global_step=steps)
-    #writer.add_scalar(f"{prefix}/loss", total_loss/num_data)
     print(
-        f"\n[{prefix}][ MSE = {MSE:.4f} | LCC = {LCC[0][1]:.4f} | SRCC = {SRCC[0]:.4f}" #| loss = {total_loss/num_data:.4f} ]"
+        f"\n[{prefix}][ MSE = {MSE:.4f} | LCC = {LCC[0][1]:.4f} | SRCC = {SRCC[0]:.4f}" 
     )
-    np.save('predict_bias', all_bias_scores)
-    np.save('predict_mean', all_mean_scores)
-    #torch.save(model.state_dict(), os.path.join(save_dir, f"model-{steps}.pt"))
-
-    #model.train()
-
+    
 def main(
     data_path,
     model_path,
@@ -73,7 +67,6 @@ def main(
     step,
     split
 ):
-
 
     if split == 'Valid':
         dataset = get_dataset(data_path, "valid_data.csv", vcc18 = True, valid = True, idtable = idtable_path)
@@ -88,8 +81,6 @@ def main(
 
     lamb = 4
     valid(model, dataloader, step, split, lamb)
-    #valid(model, test_loader, save_dir, global_step, "Test", lamb)
-
     
 if __name__ == "__main__":
     from datetime import datetime

@@ -22,9 +22,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def valid(model, dataloader, save_dir, steps, prefix):
     model.eval()
     predict_mean_scores = []
-    #all_bias_scores = []
     true_mean_scores = []
-    #all_true_bias_scores = []
     for i, batch in enumerate(tqdm(dataloader, ncols=0, desc=prefix, unit=" step")):
         wavs, judge_ids, label_means, scores = batch
         wavs = wavs.to(device)
@@ -166,7 +164,6 @@ def main(
 
             # logging
             if global_step % log_steps == 0:
-                # print("\nlogging....")
                 average_loss = torch.FloatTensor(all_loss).mean().item()
                 mean_losses = torch.FloatTensor(mean_losses).mean().item()
                 bias_losses = torch.FloatTensor(bias_losses).mean().item()
@@ -186,7 +183,7 @@ def main(
             # evaluate
             if global_step % valid_steps == 0:
                 valid(model, valid_loader, save_dir, global_step, "Valid")
-                valid(model, test_loader, save_dir, global_step, "Test")
+                #valid(model, test_loader, save_dir, global_step, "Test")
             pbar.update(1)
     
 if __name__ == "__main__":
