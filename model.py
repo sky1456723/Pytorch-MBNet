@@ -58,7 +58,9 @@ class MBNet(nn.Module):
             activation(),
             nn.Dropout(0.3),
             nn.Linear(32,1),
-            activation()
+            activation() 
+            # Here the activation may not be added. 
+            # However, in my testing, I add the activation and get comparable results. 
         )
         self.judge_embedding = nn.Embedding(num_embeddings = num_judges, embedding_dim = 86)
     def forward(self, spectrum, judge_id):
