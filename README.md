@@ -1,5 +1,5 @@
 # Pytorch-MBNet
-A pytorch implementation of MBNET: MOS PREDICTION FOR SYNTHESIZED SPEECH WITH MEAN-BIAS NETWORK. Please notice that although this repo reproduce the results in the paper, this is unofficial.
+A pytorch implementation of MBNET: MOS PREDICTION FOR SYNTHESIZED SPEECH WITH MEAN-BIAS NETWORK. Please notice that although this repo reproduces the results in the paper, this is unofficial.
 
 ## Training
 To train a new model, please run ```train.py```, the input arguments are:
